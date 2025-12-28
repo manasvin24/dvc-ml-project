@@ -22,7 +22,11 @@ stages:
     cmd: python src/evaluate.py
     deps:
     - models/model.pkl
+    - data/processed/features.csv
     - src/evaluate.py
+    params:
+    - train.random_state
+    - train.test_size
     metrics:
     - metrics/scores.json:
         cache: false
