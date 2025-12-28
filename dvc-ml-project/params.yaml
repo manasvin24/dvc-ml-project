@@ -4,6 +4,6 @@ preprocess:
 
 train:
   n_estimators: 125
-  max_depth: 20
+  max_depth: 30
   random_state: 42
   test_size: 0.2

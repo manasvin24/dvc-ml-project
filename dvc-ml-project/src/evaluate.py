@@ -10,6 +10,7 @@ from pathlib import Path
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 import yaml
+import mlflow
 
 
 def load_params():
@@ -31,6 +32,9 @@ def evaluate_model():
     3. Compute accuracy, F1, precision, recall
     4. Write metrics to metrics/scores.json
     """
+    # Set MLflow experiment
+    mlflow.set_experiment("dvc-ml-project")
+    
     # Load parameters
     params = load_params()
     train_params = params.get('train', {})
@@ -72,9 +76,6 @@ def evaluate_model():
     
     print(f"  Accuracy:  {accuracy:.4f}")
     print(f"  F1 Score:  {f1:.4f}")
-    print(f"  Precision: {precision:.4f}")
-    print(f"  Recall:    {recall:.4f}")
-    
     # Step 4: Write metrics
     print("Step 4: Saving metrics")
     Path('metrics').mkdir(exist_ok=True)
@@ -86,6 +87,17 @@ def evaluate_model():
         'recall': float(recall)
     }
     
+    with open('metrics/scores.json', 'w') as f:
+        json.dump(metrics, f, indent=2)
+    print("  Metrics saved to metrics/scores.json")
+    
+    # Log metrics to MLflow (find or create run)
+    with mlflow.start_run():
+        mlflow.log_metric("eval_accuracy", accuracy)
+        mlflow.log_metric("eval_f1_score", f1)
+        mlflow.log_metric("eval_precision", precision)
+        mlflow.log_metric("eval_recall", recall)
+        mlflow.log_artifact("metrics/scores.json")
     with open('metrics/scores.json', 'w') as f:
         json.dump(metrics, f, indent=2)
     print("  Metrics saved to metrics/scores.json")
